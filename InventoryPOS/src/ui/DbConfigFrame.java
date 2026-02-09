@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.FileOutputStream;
 import java.util.Properties;
+import db.DBSetup;
 
 public class DbConfigFrame extends JFrame {
     private JPasswordField txtPass;
@@ -33,13 +34,18 @@ public class DbConfigFrame extends JFrame {
     private void saveConfig() {
         try (FileOutputStream out = new FileOutputStream("db_config.properties")) {
             Properties props = new Properties();
-            props.setProperty("db.user", txtUser.getText());
+            props.setProperty("db.user", txtUser.getText().trim());
             props.setProperty("db.pass", new String(txtPass.getPassword()));
-            props.save(out, "Database Configuration");
+            props.store(out, "Database Configuration");
             
-            JOptionPane.showMessageDialog(this, "Settings Saved! Please restart the app.");
-            System.exit(0);
+            // Auto-Initialize tables
+            DBSetup.init(); 
+            
+            JOptionPane.showMessageDialog(this, "Settings Saved & Database Ready!");
+            this.dispose();
+            new LoginFrame().setVisible(true);
         } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage() + "\nTry running as Administrator.");
             ex.printStackTrace();
         }
     }
